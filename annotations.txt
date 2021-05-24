@@ -1,0 +1,150 @@
+# Repositorio
+https://github.com/platzi/nestjs-modular/
+
+# Crear módulos
+nest g mo users
+nest g mo products
+
+# Tipos de providers
+- Cuando importas un Servicio en "Providers", nestjs lo que hace es crear una única instancia
+  haciendo uso del patrón "singleton". 
+- En el array de providers, usualmente se agrega el servici, sin embargo, lo que hace nestjs... es 
+  desacoplarlo en el siguiente objeto:
+
+  {
+      provide: ProductsService, -> Nombre por el cual será llamada
+      useClass: ProductsService -> Reconoce que es una clase y crear una instancia de ella bajo el patrón singleton.
+  }  
+
+- useClass -> Utiliza por defecto para decirle al módulo que necesitamos un servicio que va a ser inyectado en algun lado.
+
+- "useValue" -> Para compartir un valor en toda la aplicación e inyectarlo con el decorador @Inject
+
+- "useFactory" -> Es una fábrica, podemos fabricar el provider de forma asíncrono. Es asíncrono y recibe inyecciones 
+                  en el mismo.
+
+"httpService" nos permite hacer peticiones HTTP (get, post, put, delete, …). Esta libreria se basa en Axios (axios es una libreria de javascript para hacer peticiones http).
+Uso de http
+Para usar "httpService" debemos hacer 2 cosas
+Declarar el modulo HttpModule dentro del modulo que usar el servicio
+
+Use factory permite crear valores dinámicamente. El valor real del provider ( sean valores, objetos, clases) 
+será proporcionado por lo que se devuelva en una función fabricadora, aun si el valor se obtenga de forma 
+asíncrona. La función fabricadora puede recibir parámetros.
+
+USE FACTORY
+- No usarlos para conexiones externas como por ejemplo: APIS.
+- Usarlo para conexiones a base de datos.
+
+¿Cuándo usar HttpModule?
+- Para conectarse a una api. 
+
+
+# Global Module
+Un modulo global será instanciado en todos los demás módulos si que nosotros tengamos que hacerlo explícitamente.
+
+- Crea una instancia global para todos los módulos.
+- Comando para crear:
+  nest g mo database
+
+
+# Config Module
+El valor de las variables de entorno (las variables de entorno son variables globales que se usan en toda la aplicación) 
+depende de si la aplicación se ejecutara en el servidor de producción, en el de pruebas o en una versión local.
+
++ Instalación
+  Para manejar las variables de entorno instalaremos el modulo config propio de nest js.
+
+  npm i --save @nestjs/config
+
++ Declaración de variables entorno
+  Debemos listar todas las variables de entorno en un archivo llamado .env en la raíz del proyecto.
+
+  No olvides agregar este archivo en lista de los ignore de git
+
+# Configuración por ambientes
+Ya que configuramos el archivo env que contiene el valor de las variables de entorno para el servidor de desarrollo 
+debemos crear los archivos .env para el servidor de pruebas y produccion.
+
++ ¿Cómo elegir dinámicamente el archivo env?
+  Nuestro código debe elegir automáticamente que archivo .env debe tomar según en el servidor en el que se este 
+  ejecutando. Para ello debemos crear un objeto en donde listaremos todos los ambientes que existen y los ligaremos 
+  con su archivo correspondiente.
+
++ Especificar ambiente
+  Podemos indicar en que ambiente se esta trabajando usando las siguientes lineas.
+
+  NODE_ENV=prod npm run start:dev 
+  NODE_ENV=stag npm run start:dev
+
+# Tipado en config
+Tipar nuestro archivo de configuración le dará el poder a typescript de ayudarnos a evitar errores 
+triviales como escribir mal el nombre de una variable o no definir una variable en los archivos .env
+
++ Tipando el archivo de configuración
+  Para tipar el archivo de configuración debemos hacerlo con ayuda de la funcion registerAs incluida 
+  en el paquete de '@nestjs/config'
+
+
+# Validación de esquemas en .envs con Joi
+El tipado en las variables de ambiente nos ayuda a solucionar errores faciles en tiempos de desarrollo.
+En el momento de despliegue cuando un servidor externo nos envia variables de ambiente, tenemos que validar 
+los tipos de datos que recibimos en nuestras variables de entorno.
+
+- Instalamos npm install --save joi
+- app.module.ts importamos joi
+
+
+# Integrando Swagger y PartialType con Open API
+
+npm install --save @nestjs/swagger swagger-ui-express
+
+https://docs.nestjs.com/openapi/introduction
+
+En los DTO usualmente usarás los PartialType de esta manera:
+
+import { PartialType } from '@nestjs/mapped-types';
+
+Sin embargo, si se tiene pensado documentar la api, para que swagger reconozca los DTO es necesario cambiar lo
+anterior... por lo siguiente:
+
+import { PartialType } from '@nestjs/swagger';
+
+Si en caso no se actualizan los cambios al hacer configuraciones de swagger la aplicación, pues, se procede a eliminar
+el directorio "dist".
+
+
+# Extendiendo la documentación
+Para los controladores se utiliza:
+
+- ApiTags: para agrupar los metodos de los controladores.
+- ApiOperation para documentar que es lo que hace el metodo.
+- Por cada metodo del controlador, se puede documentar las respuestas.
+- ApiResponse: se le define el http code status y la descripcion description.
+  + Se puede extender con decoradores particulares para cada response que viene con su status:
+    -> ApiOkResponse: http code status 200
+    -> ApiBadRequestResponse http code status 400
+    -> ApiForbiddenResponse, http code 403
+    -> ApiUnauthorizedResponse, http code 401
+    -> ApiCreatedResponse, http code 201
+    -> ApiNotFoundResponse, http code 404
+
+
+# Configuración de Heroku
+- Primero configurar CORS.
+
+- Para deployar en heroku tenemos que crear el archivo Procfile que va a contener el comando de inicio de nuestra 
+  aplicacion que va a ejecutar heroku por nosotros:
+
+  web: npm run start:prod
+
+- Setear el puerto en una variable de entorno cuando levanta la aplicacion. Esto se hace en el main.ts
+- Nos creamos la cuenta en heroku,
+- realizamos el login via consola ejecutando heroku login, esto abre el browser y nos logueamos.
+- creamos el proyecto heroku create
+
+- Realizamos pruebas locales antes de subir 
+  heroku local web
+  
+
+# Deploy de NestJS en Heroku
